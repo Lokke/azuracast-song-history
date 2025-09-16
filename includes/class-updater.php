@@ -128,21 +128,33 @@ class AzuraCast_Song_History_Updater {
         global $wp_filesystem;
         
         $install_directory = plugin_dir_path($this->plugin_file);
+        $plugin_slug = dirname($this->plugin_slug);
         
-        // GitHub ZIP files come with a folder like "azuracast-song-history-master"
+        // Expected target directory
+        $target_directory = WP_PLUGIN_DIR . '/' . $plugin_slug;
+        
+        // GitHub ZIP files come with a folder like "Lokke-azuracast-song-history-296e7ea"
         // We need to move the contents to our plugin directory
         if (isset($result['destination'])) {
             $source_dir = $result['destination'];
             
-            // Find the actual plugin folder inside the ZIP (GitHub adds repo name + branch)
+            // Remove the old plugin directory first
+            if ($wp_filesystem->exists($target_directory)) {
+                $wp_filesystem->rmdir($target_directory, true);
+            }
+            
+            // Find the actual plugin folder inside the ZIP (GitHub adds repo name + commit)
             $files = $wp_filesystem->dirlist($source_dir);
             if (!empty($files)) {
                 $source_plugin_dir = $source_dir . '/' . key($files);
                 
-                // Copy files from source to destination
+                // Move the entire source directory to target
                 if ($wp_filesystem->is_dir($source_plugin_dir)) {
-                    $wp_filesystem->move($source_plugin_dir, $install_directory);
-                    $result['destination'] = $install_directory;
+                    $wp_filesystem->move($source_plugin_dir, $target_directory);
+                    $result['destination'] = $target_directory;
+                    
+                    // Clean up the temporary directory
+                    $wp_filesystem->rmdir($source_dir, true);
                 }
             }
         }
