@@ -328,9 +328,9 @@ class AzuraCast_Admin {
         $value = isset($this->options['api_url']) ? $this->options['api_url'] : '';
         echo '<input type="text" id="api_url" name="azuracast_song_history_options[api_url]" 
                      value="' . esc_attr($value) . '" class="regular-text" 
-                     placeholder="funkturm.radio-endstation.de">';
+                     placeholder="https://funkturm.radio-endstation.de">';
         echo '<p class="description">' . 
-             esc_html__('Enter your AzuraCast server URL (without http:// or https://). Example: funkturm.radio-endstation.de', 'azuracast-song-history') . 
+             esc_html__('Enter your AzuraCast server URL (with or without https://). Example: https://funkturm.radio-endstation.de', 'azuracast-song-history') . 
              '</p>';
     }
     
@@ -651,7 +651,7 @@ class AzuraCast_Admin {
                 <tbody>
                     <tr>
                         <td><strong><?php esc_html_e('Plugin Version', 'azuracast-song-history'); ?></strong></td>
-                        <td>1.0.0</td>
+                        <td><?php echo esc_html(AZURACAST_SONG_HISTORY_VERSION); ?></td>
                     </tr>
                     <tr>
                         <td><strong><?php esc_html_e('Cached Songs', 'azuracast-song-history'); ?></strong></td>
@@ -675,7 +675,7 @@ class AzuraCast_Admin {
             <h3><?php esc_html_e('Debug Information', 'azuracast-song-history'); ?></h3>
             <p><?php esc_html_e('If you\'re experiencing issues, include this information when asking for support:', 'azuracast-song-history'); ?></p>
             <textarea readonly class="large-text" rows="10"><?php
-                echo "Plugin: AzuraCast Song History v1.0.0\n";
+                echo "Plugin: AzuraCast Song History v" . AZURACAST_SONG_HISTORY_VERSION . "\n";
                 echo "WordPress: " . get_bloginfo('version') . "\n";
                 echo "PHP: " . PHP_VERSION . "\n";
                 echo "Server: " . $_SERVER['SERVER_SOFTWARE'] . "\n";

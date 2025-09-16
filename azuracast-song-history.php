@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('AZURACAST_SONG_HISTORY_VERSION', '0.0.1');
+define('AZURACAST_SONG_HISTORY_VERSION', '0.0.6');
 define('AZURACAST_SONG_HISTORY_PLUGIN_FILE', __FILE__);
 define('AZURACAST_SONG_HISTORY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('AZURACAST_SONG_HISTORY_PLUGIN_URL', plugin_dir_url(__FILE__));
