@@ -287,9 +287,37 @@ class AzuraCast_API {
         // Extract song data from nested structure
         $song_data = isset($song_entry['song']) ? $song_entry['song'] : $song_entry;
         
+        // Get title and artist with fallbacks
+        $title = '';
+        $artist = '';
+        
+        // Try to get title/artist from individual fields first
+        if (!empty($song_data['title'])) {
+            $title = $song_data['title'];
+        }
+        if (!empty($song_data['artist'])) {
+            $artist = $song_data['artist'];
+        }
+        
+        // If title or artist is empty, try to parse from 'text' field
+        if ((empty($title) || empty($artist)) && !empty($song_data['text'])) {
+            $text_parts = explode(' - ', $song_data['text'], 2);
+            if (count($text_parts) === 2) {
+                if (empty($artist)) {
+                    $artist = trim($text_parts[0]);
+                }
+                if (empty($title)) {
+                    $title = trim($text_parts[1]);
+                }
+            } elseif (empty($title)) {
+                // If no separator found, use entire text as title
+                $title = trim($song_data['text']);
+            }
+        }
+        
         return array(
-            'title' => !empty($song_data['title']) ? $song_data['title'] : __('Unknown Title', 'azuracast-song-history'),
-            'artist' => !empty($song_data['artist']) ? $song_data['artist'] : __('Unknown Artist', 'azuracast-song-history'),
+            'title' => !empty($title) ? $title : __('Unknown Title', 'azuracast-song-history'),
+            'artist' => !empty($artist) ? $artist : __('Unknown Artist', 'azuracast-song-history'),
             'album' => !empty($song_data['album']) ? $song_data['album'] : '',
             'played_at' => isset($song_entry['played_at']) ? $song_entry['played_at'] : '',
             'art' => !empty($song_data['art']) ? $song_data['art'] : '',
