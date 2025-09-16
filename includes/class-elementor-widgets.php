@@ -53,6 +53,11 @@ class AzuraCast_Elementor_Widgets {
      * Register widgets
      */
     public function register_widgets($widgets_manager) {
+        // Check if required classes exist
+        if (!class_exists('AzuraCast_API')) {
+            return; // Exit early if API class not available
+        }
+        
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/live-moderator.php';
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/current-song.php';
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/song-history.php';

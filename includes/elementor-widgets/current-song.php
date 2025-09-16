@@ -5,9 +5,15 @@
  * @package AzuraCast_Song_History
  */
 
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Background;
 use Elementor\Group_Control_Border;
 use Elementor\Group_Control_Box_Shadow;
 
@@ -372,41 +378,6 @@ class AzuraCast_Current_Song_Widget extends Widget_Base {
                  esc_html($current_song['title']) . '</' . $title_tag . '>';
             echo '<' . $artist_tag . ' class="azuracast-song-artist">' . 
                  esc_html($current_song['artist']) . '</' . $artist_tag . '>';
-            
-            echo '</div>';
-        }
-        
-        echo '</div>';
-    }
-        
-        // Cover Art
-        if ($settings['show_cover'] === 'yes' && $settings['layout'] !== 'text_only') {
-            echo '<div class="azuracast-song-cover">';
-            if (!empty($current_song['art'])) {
-                echo '<img src="' . esc_url($current_song['art']) . '" alt="' . 
-                     esc_attr($current_song['title'] . ' by ' . $current_song['artist']) . 
-                     '" class="azuracast-cover-image">';
-            } else {
-                echo '<div class="azuracast-no-cover">♪</div>';
-            }
-            echo '</div>';
-        }
-        
-        // Song Info
-        if ($settings['layout'] !== 'cover_only') {
-            echo '<div class="azuracast-song-info">';
-            
-            if ($settings['show_title'] === 'yes') {
-                echo '<div class="azuracast-song-title">' . esc_html($current_song['title']) . '</div>';
-            }
-            
-            if ($settings['show_artist'] === 'yes') {
-                echo '<div class="azuracast-song-artist">' . esc_html($current_song['artist']) . '</div>';
-            }
-            
-            if ($settings['show_album'] === 'yes' && !empty($current_song['album'])) {
-                echo '<div class="azuracast-song-album">' . esc_html($current_song['album']) . '</div>';
-            }
             
             echo '</div>';
         }

@@ -5,10 +5,17 @@
  * @package AzuraCast_Song_History
  */
 
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Group_Control_Text_Shadow;
+use Elementor\Group_Control_Background;
+use Elementor\Group_Control_Border;
 
 class AzuraCast_Live_Moderator_Widget extends Widget_Base {
 
@@ -290,14 +297,5 @@ class AzuraCast_Live_Moderator_Widget extends Widget_Base {
         }
         
         echo '</' . $tag . '>';
-    }
-        
-        echo '<span class="azuracast-moderator-name">' . esc_html($moderator_name) . '</span>';
-        
-        if (!empty($settings['suffix_text'])) {
-            echo ' <span class="azuracast-suffix">' . esc_html($settings['suffix_text']) . '</span>';
-        }
-        
-        echo '</div>';
     }
 }
