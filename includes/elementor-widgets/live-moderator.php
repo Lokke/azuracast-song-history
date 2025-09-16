@@ -38,13 +38,14 @@ class AzuraCast_Live_Moderator_Widget extends Widget_Base {
             ]
         );
 
-        $this->add_control(
+                $this->add_control(
             'prefix_text',
             [
                 'label' => __('Prefix Text', 'azuracast-song-history'),
                 'type' => Controls_Manager::TEXT,
-                'default' => __('🔴 LIVE:', 'azuracast-song-history'),
-                'placeholder' => __('Text before moderator name', 'azuracast-song-history'),
+                'default' => __('Live: ', 'azuracast-song-history'),
+                'placeholder' => __('Live: ', 'azuracast-song-history'),
+                'description' => __('Text to show before moderator name', 'azuracast-song-history'),
             ]
         );
 
@@ -53,8 +54,59 @@ class AzuraCast_Live_Moderator_Widget extends Widget_Base {
             [
                 'label' => __('Suffix Text', 'azuracast-song-history'),
                 'type' => Controls_Manager::TEXT,
-                'default' => __('ist on Air!', 'azuracast-song-history'),
-                'placeholder' => __('Text after moderator name', 'azuracast-song-history'),
+                'default' => '',
+                'placeholder' => __(' is broadcasting', 'azuracast-song-history'),
+                'description' => __('Text to show after moderator name', 'azuracast-song-history'),
+            ]
+        );
+
+        $this->add_control(
+            'html_tag',
+            [
+                'label' => __('HTML Tag', 'azuracast-song-history'),
+                'type' => Controls_Manager::SELECT,
+                'default' => 'span',
+                'options' => [
+                    'h1' => __('H1', 'azuracast-song-history'),
+                    'h2' => __('H2', 'azuracast-song-history'),
+                    'h3' => __('H3', 'azuracast-song-history'),
+                    'h4' => __('H4', 'azuracast-song-history'),
+                    'h5' => __('H5', 'azuracast-song-history'),
+                    'h6' => __('H6', 'azuracast-song-history'),
+                    'p' => __('Paragraph', 'azuracast-song-history'),
+                    'span' => __('Span', 'azuracast-song-history'),
+                    'div' => __('Div', 'azuracast-song-history'),
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'text_align',
+            [
+                'label' => __('Alignment', 'azuracast-song-history'),
+                'type' => Controls_Manager::CHOOSE,
+                'options' => [
+                    'left' => [
+                        'title' => __('Left', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-left',
+                    ],
+                    'center' => [
+                        'title' => __('Center', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-center',
+                    ],
+                    'right' => [
+                        'title' => __('Right', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-right',
+                    ],
+                    'justify' => [
+                        'title' => __('Justified', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-justify',
+                    ],
+                ],
+                'default' => 'left',
+                'selectors' => [
+                    '{{WRAPPER}} .azuracast-live-moderator-elementor' => 'text-align: {{VALUE}};',
+                ],
             ]
         );
 
@@ -198,7 +250,9 @@ class AzuraCast_Live_Moderator_Widget extends Widget_Base {
             $response = $api->get_cached_history(1);
             if (empty($response)) {
                 if ($settings['offline_behavior'] === 'show_message') {
-                    echo '<div class="azuracast-live-display offline">' . esc_html($settings['offline_message']) . '</div>';
+                    $tag = $settings['html_tag'];
+                    echo '<' . $tag . ' class="azuracast-live-moderator-elementor offline">' . 
+                         esc_html($settings['offline_message']) . '</' . $tag . '>';
                 }
                 return;
             }
@@ -214,17 +268,29 @@ class AzuraCast_Live_Moderator_Widget extends Widget_Base {
         
         if (!$is_live || empty($moderator_name)) {
             if ($settings['offline_behavior'] === 'show_message') {
-                echo '<div class="azuracast-live-display offline">' . esc_html($settings['offline_message']) . '</div>';
+                $tag = $settings['html_tag'];
+                echo '<' . $tag . ' class="azuracast-live-moderator-elementor offline">' . 
+                     esc_html($settings['offline_message']) . '</' . $tag . '>';
             }
             return;
         }
         
         // Render live moderator
-        echo '<div class="azuracast-live-display online">';
+        $tag = $settings['html_tag'];
+        echo '<' . $tag . ' class="azuracast-live-moderator-elementor online">';
         
         if (!empty($settings['prefix_text'])) {
-            echo '<span class="azuracast-prefix">' . esc_html($settings['prefix_text']) . ' </span>';
+            echo '<span class="prefix">' . esc_html($settings['prefix_text']) . '</span>';
         }
+        
+        echo '<span class="moderator-name">' . esc_html($moderator_name) . '</span>';
+        
+        if (!empty($settings['suffix_text'])) {
+            echo '<span class="suffix">' . esc_html($settings['suffix_text']) . '</span>';
+        }
+        
+        echo '</' . $tag . '>';
+    }
         
         echo '<span class="azuracast-moderator-name">' . esc_html($moderator_name) . '</span>';
         

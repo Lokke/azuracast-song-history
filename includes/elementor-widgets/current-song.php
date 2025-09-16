@@ -48,6 +48,75 @@ class AzuraCast_Current_Song_Widget extends Widget_Base {
                 'label_off' => __('Hide', 'azuracast-song-history'),
                 'return_value' => 'yes',
                 'default' => 'yes',
+                'condition' => [
+                    'layout_style!' => 'text-only',
+                ],
+            ]
+        );
+
+        $this->add_responsive_control(
+            'content_align',
+            [
+                'label' => __('Alignment', 'azuracast-song-history'),
+                'type' => Controls_Manager::CHOOSE,
+                'options' => [
+                    'left' => [
+                        'title' => __('Left', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-left',
+                    ],
+                    'center' => [
+                        'title' => __('Center', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-center',
+                    ],
+                    'right' => [
+                        'title' => __('Right', 'azuracast-song-history'),
+                        'icon' => 'eicon-text-align-right',
+                    ],
+                ],
+                'default' => 'left',
+                'selectors' => [
+                    '{{WRAPPER}} .azuracast-current-song-elementor' => 'text-align: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'title_tag',
+            [
+                'label' => __('Title HTML Tag', 'azuracast-song-history'),
+                'type' => Controls_Manager::SELECT,
+                'default' => 'h3',
+                'options' => [
+                    'h1' => __('H1', 'azuracast-song-history'),
+                    'h2' => __('H2', 'azuracast-song-history'),
+                    'h3' => __('H3', 'azuracast-song-history'),
+                    'h4' => __('H4', 'azuracast-song-history'),
+                    'h5' => __('H5', 'azuracast-song-history'),
+                    'h6' => __('H6', 'azuracast-song-history'),
+                    'p' => __('Paragraph', 'azuracast-song-history'),
+                    'span' => __('Span', 'azuracast-song-history'),
+                    'div' => __('Div', 'azuracast-song-history'),
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'artist_tag',
+            [
+                'label' => __('Artist HTML Tag', 'azuracast-song-history'),
+                'type' => Controls_Manager::SELECT,
+                'default' => 'p',
+                'options' => [
+                    'h1' => __('H1', 'azuracast-song-history'),
+                    'h2' => __('H2', 'azuracast-song-history'),
+                    'h3' => __('H3', 'azuracast-song-history'),
+                    'h4' => __('H4', 'azuracast-song-history'),
+                    'h5' => __('H5', 'azuracast-song-history'),
+                    'h6' => __('H6', 'azuracast-song-history'),
+                    'p' => __('Paragraph', 'azuracast-song-history'),
+                    'span' => __('Span', 'azuracast-song-history'),
+                    'div' => __('Div', 'azuracast-song-history'),
+                ],
             ]
         );
 
@@ -263,7 +332,7 @@ class AzuraCast_Current_Song_Widget extends Widget_Base {
         if (is_wp_error($response) || empty($response)) {
             $response = $api->get_cached_history(1);
             if (empty($response)) {
-                echo '<div class="azuracast-current-song error">Unable to load current song</div>';
+                echo '<div class="azuracast-current-song-elementor error">Unable to load current song</div>';
                 return;
             }
         }
@@ -271,13 +340,44 @@ class AzuraCast_Current_Song_Widget extends Widget_Base {
         $current_song = isset($response['now_playing']) ? $response['now_playing'] : null;
         
         if (!$current_song) {
-            echo '<div class="azuracast-current-song error">No song playing</div>';
+            echo '<div class="azuracast-current-song-elementor error">No song playing</div>';
             return;
         }
         
-        $layout_class = 'layout-' . $settings['layout'];
+        $layout_class = 'layout-' . $settings['layout_style'];
         
-        echo '<div class="azuracast-current-song ' . esc_attr($layout_class) . '">';
+        echo '<div class="azuracast-current-song-elementor ' . esc_attr($layout_class) . '">';
+        
+        // Cover Art
+        if ($settings['show_cover'] === 'yes' && $settings['layout_style'] !== 'text-only') {
+            echo '<div class="azuracast-song-cover">';
+            if (!empty($current_song['art'])) {
+                echo '<img src="' . esc_url($current_song['art']) . '" alt="' . 
+                     esc_attr($current_song['title'] . ' by ' . $current_song['artist']) . 
+                     '" class="azuracast-cover-image">';
+            } else {
+                echo '<div class="azuracast-no-cover">♪</div>';
+            }
+            echo '</div>';
+        }
+        
+        // Song Info (unless cover-only layout)
+        if ($settings['layout_style'] !== 'cover-only') {
+            echo '<div class="azuracast-song-info">';
+            
+            $title_tag = $settings['title_tag'];
+            $artist_tag = $settings['artist_tag'];
+            
+            echo '<' . $title_tag . ' class="azuracast-song-title">' . 
+                 esc_html($current_song['title']) . '</' . $title_tag . '>';
+            echo '<' . $artist_tag . ' class="azuracast-song-artist">' . 
+                 esc_html($current_song['artist']) . '</' . $artist_tag . '>';
+            
+            echo '</div>';
+        }
+        
+        echo '</div>';
+    }
         
         // Cover Art
         if ($settings['show_cover'] === 'yes' && $settings['layout'] !== 'text_only') {

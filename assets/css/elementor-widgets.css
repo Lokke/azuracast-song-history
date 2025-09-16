@@ -31,6 +31,21 @@
     opacity: 0.8;
 }
 
+.azuracast-live-moderator-elementor .moderator-name {
+    font-weight: 600;
+}
+
+/* Alignment support for live moderator */
+.azuracast-live-moderator-elementor[style*="text-align: center"] {
+    display: block;
+    text-align: center;
+}
+
+.azuracast-live-moderator-elementor[style*="text-align: right"] {
+    display: block;
+    text-align: right;
+}
+
 /* Current Song Widget */
 .azuracast-current-song-elementor {
     display: flex;
@@ -53,6 +68,33 @@
 
 .azuracast-current-song-elementor.layout-text-only .azuracast-song-cover {
     display: none;
+}
+
+/* Center alignment support */
+.azuracast-current-song-elementor[style*="text-align: center"] {
+    justify-content: center;
+}
+
+.azuracast-current-song-elementor[style*="text-align: center"] .azuracast-song-info {
+    text-align: center;
+}
+
+/* Right alignment support */
+.azuracast-current-song-elementor[style*="text-align: right"] {
+    justify-content: flex-end;
+}
+
+.azuracast-current-song-elementor[style*="text-align: right"] .azuracast-song-info {
+    text-align: right;
+}
+
+/* Left alignment (default) */
+.azuracast-current-song-elementor[style*="text-align: left"] {
+    justify-content: flex-start;
+}
+
+.azuracast-current-song-elementor[style*="text-align: left"] .azuracast-song-info {
+    text-align: left;
 }
 
 .azuracast-current-song-elementor .azuracast-song-cover {
@@ -126,6 +168,25 @@
 
 .azuracast-song-history-elementor .azuracast-song-item:hover {
     background-color: #f8f9fa;
+}
+
+/* Center alignment support for song history */
+.azuracast-song-history-elementor[style*="text-align: center"] .azuracast-song-item {
+    justify-content: center;
+    text-align: center;
+}
+
+/* Right alignment support for song history */
+.azuracast-song-history-elementor[style*="text-align: right"] .azuracast-song-item {
+    justify-content: flex-end;
+    text-align: right;
+    flex-direction: row-reverse;
+}
+
+/* Ensure cover and text maintain proper spacing in different alignments */
+.azuracast-song-history-elementor[style*="text-align: center"] .azuracast-song-info,
+.azuracast-song-history-elementor[style*="text-align: right"] .azuracast-song-info {
+    text-align: inherit;
 }
 
 /* Layout Variations */
