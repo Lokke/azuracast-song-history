@@ -3,7 +3,7 @@
  * Plugin Name: AzuraCast Song History
  * Plugin URI: https://github.com/Lokke/azuracast-song-history
  * Description: Display recent song history from your AzuraCast radio station with customizable widgets and shortcodes.
- * Version: 0.0.1
+ * Version:           0.0.2
  * Author: Lokke
  * Author URI: https://github.com/Lokke
  * Text Domain: azuracast-song-history
@@ -97,7 +97,7 @@ class AzuraCast_Song_History {
     private function includes() {
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-api.php';
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-widget.php';
-        require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-shortcode.php';
+        require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-shortcodes.php';
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'admin/class-admin.php';
     }
     
