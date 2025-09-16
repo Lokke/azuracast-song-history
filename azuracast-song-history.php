@@ -3,7 +3,7 @@
  * Plugin Name: AzuraCast Song History
  * Plugin URI: https://github.com/Lokke/azuracast-song-history
  * Description: Display recent song history from your AzuraCast radio station with customizable widgets and shortcodes.
- * Version:           0.0.15
+ * Version:           0.0.16
  * Author: Lokke
  * Author URI: https://github.com/Lokke
  * Text Domain: azuracast-song-history
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('AZURACAST_SONG_HISTORY_VERSION', '0.0.11');
+define('AZURACAST_SONG_HISTORY_VERSION', '0.0.16');
 define('AZURACAST_SONG_HISTORY_PLUGIN_FILE', __FILE__);
 define('AZURACAST_SONG_HISTORY_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('AZURACAST_SONG_HISTORY_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -119,6 +119,12 @@ class AzuraCast_Song_History {
         add_action('widgets_init', function() {
             register_widget('AzuraCast_Widget');
         });
+        
+        // Load Elementor widgets if Elementor is active
+        if (did_action('elementor/loaded')) {
+            require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-elementor-widgets.php';
+            new AzuraCast_Elementor_Widgets();
+        }
     }
     
     /**
@@ -148,6 +154,16 @@ class AzuraCast_Song_History {
             array(),
             AZURACAST_SONG_HISTORY_VERSION
         );
+        
+        // Enqueue Elementor widget styles if Elementor is active
+        if (did_action('elementor/loaded')) {
+            wp_enqueue_style(
+                'azuracast-elementor-widgets',
+                AZURACAST_SONG_HISTORY_PLUGIN_URL . 'assets/css/elementor-widgets.css',
+                array(),
+                AZURACAST_SONG_HISTORY_VERSION
+            );
+        }
         
         wp_enqueue_script(
             'azuracast-song-history',

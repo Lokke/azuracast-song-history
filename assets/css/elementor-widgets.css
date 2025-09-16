@@ -1,0 +1,297 @@
+/**
+ * Elementor Widgets CSS
+ * 
+ * @package AzuraCast_Song_History
+ */
+
+/* General Elementor Widget Styles */
+.azuracast-elementor-widget {
+    margin: 10px 0;
+}
+
+/* Live Moderator Widget */
+.azuracast-live-moderator-elementor {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.azuracast-live-moderator-elementor.offline {
+    background: rgba(108, 117, 125, 0.1);
+    border-color: rgba(108, 117, 125, 0.3);
+    color: #6c757d;
+}
+
+.azuracast-live-moderator-elementor .prefix,
+.azuracast-live-moderator-elementor .suffix {
+    opacity: 0.8;
+}
+
+/* Current Song Widget */
+.azuracast-current-song-elementor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.azuracast-current-song-elementor.layout-vertical {
+    flex-direction: column;
+    text-align: center;
+}
+
+.azuracast-current-song-elementor.layout-cover-only {
+    justify-content: center;
+}
+
+.azuracast-current-song-elementor.layout-text-only .azuracast-song-cover {
+    display: none;
+}
+
+.azuracast-current-song-elementor .azuracast-song-cover {
+    flex-shrink: 0;
+}
+
+.azuracast-current-song-elementor .azuracast-cover-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.azuracast-current-song-elementor.layout-vertical .azuracast-cover-image {
+    width: 100px;
+    height: 100px;
+}
+
+.azuracast-current-song-elementor .azuracast-no-cover {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #6c757d;
+}
+
+.azuracast-current-song-elementor .azuracast-song-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.azuracast-current-song-elementor .azuracast-song-title {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 4px;
+    color: #212529;
+}
+
+.azuracast-current-song-elementor .azuracast-song-artist {
+    font-size: 14px;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+/* Song History Widget */
+.azuracast-song-history-elementor {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.azuracast-song-history-elementor .azuracast-song-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: background-color 0.2s ease;
+}
+
+.azuracast-song-history-elementor .azuracast-song-item:last-child {
+    border-bottom: none;
+}
+
+.azuracast-song-history-elementor .azuracast-song-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Layout Variations */
+.azuracast-song-history-elementor.layout-compact .azuracast-song-item {
+    padding: 8px 12px;
+}
+
+.azuracast-song-history-elementor.layout-compact .azuracast-cover-image {
+    width: 40px;
+    height: 40px;
+}
+
+.azuracast-song-history-elementor.layout-compact .azuracast-song-title {
+    font-size: 14px;
+}
+
+.azuracast-song-history-elementor.layout-compact .azuracast-song-artist {
+    font-size: 12px;
+}
+
+.azuracast-song-history-elementor.layout-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    background: transparent;
+    box-shadow: none;
+}
+
+.azuracast-song-history-elementor.layout-cards .azuracast-song-item {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.azuracast-song-history-elementor.layout-cards .azuracast-song-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+/* Song Cover */
+.azuracast-song-history-elementor .azuracast-song-cover {
+    flex-shrink: 0;
+}
+
+.azuracast-song-history-elementor .azuracast-cover-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.azuracast-song-history-elementor .azuracast-no-cover {
+    width: 50px;
+    height: 50px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #6c757d;
+}
+
+/* Song Info */
+.azuracast-song-history-elementor .azuracast-song-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.azuracast-song-history-elementor .azuracast-song-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 2px;
+    color: #212529;
+    word-wrap: break-word;
+}
+
+.azuracast-song-history-elementor .azuracast-song-artist {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.3;
+    margin-bottom: 2px;
+    word-wrap: break-word;
+}
+
+.azuracast-song-history-elementor .azuracast-song-time {
+    font-size: 11px;
+    color: #adb5bd;
+    line-height: 1.3;
+}
+
+/* Error States */
+.azuracast-song-history-elementor.error,
+.azuracast-song-history-elementor.empty,
+.azuracast-current-song-elementor.error,
+.azuracast-live-moderator-elementor.error {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .azuracast-song-history-elementor,
+    .azuracast-current-song-elementor {
+        background: #2b2b2b;
+        border-color: #404040;
+    }
+
+    .azuracast-song-history-elementor .azuracast-song-item {
+        border-bottom-color: #404040;
+    }
+
+    .azuracast-song-history-elementor .azuracast-song-item:hover {
+        background-color: #353535;
+    }
+
+    .azuracast-song-history-elementor .azuracast-song-title,
+    .azuracast-current-song-elementor .azuracast-song-title {
+        color: #f8f9fa;
+    }
+
+    .azuracast-song-history-elementor .azuracast-song-artist,
+    .azuracast-current-song-elementor .azuracast-song-artist {
+        color: #adb5bd;
+    }
+
+    .azuracast-song-history-elementor .azuracast-no-cover,
+    .azuracast-current-song-elementor .azuracast-no-cover {
+        background: #404040;
+        border-color: #555;
+        color: #adb5bd;
+    }
+
+    .azuracast-song-history-elementor.layout-cards .azuracast-song-item {
+        background: #2b2b2b;
+        border-color: #404040;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .azuracast-current-song-elementor {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .azuracast-song-history-elementor.layout-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .azuracast-song-history-elementor .azuracast-song-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+
+    .azuracast-song-history-elementor .azuracast-cover-image {
+        width: 60px;
+        height: 60px;
+    }
+}
