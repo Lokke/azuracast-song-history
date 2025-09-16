@@ -81,6 +81,7 @@ class AzuraCast_Song_History {
         $this->init_admin();
         $this->init_widgets();
         $this->init_shortcodes();
+        $this->init_updater();
         
         // Enqueue scripts and styles
         add_action('wp_enqueue_scripts', array($this, 'enqueue_public_assets'));
@@ -98,6 +99,7 @@ class AzuraCast_Song_History {
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-api.php';
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-widget.php';
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-shortcodes.php';
+        require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'includes/class-updater.php';
         require_once AZURACAST_SONG_HISTORY_PLUGIN_PATH . 'admin/class-admin.php';
     }
     
@@ -124,6 +126,16 @@ class AzuraCast_Song_History {
      */
     private function init_shortcodes() {
         new AzuraCast_Shortcodes();
+    }
+    
+    /**
+     * Initialize GitHub updater
+     */
+    private function init_updater() {
+        if (is_admin()) {
+            global $azuracast_updater;
+            $azuracast_updater = new AzuraCast_Song_History_Updater(__FILE__, 'Lokke', 'azuracast-song-history');
+        }
     }
     
     /**

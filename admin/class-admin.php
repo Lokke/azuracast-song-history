@@ -27,6 +27,7 @@ class AzuraCast_Admin {
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'admin_init'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        add_action('admin_notices', array($this, 'show_update_notice'));
         add_action('wp_ajax_azuracast_test_connection', array($this, 'ajax_test_connection'));
         add_action('wp_ajax_azuracast_clear_cache', array($this, 'ajax_clear_cache'));
     }
@@ -721,5 +722,24 @@ class AzuraCast_Admin {
         $api->clear_cache();
         
         wp_send_json_success(__('Cache cleared successfully!', 'azuracast-song-history'));
+    }
+    
+    /**
+     * Show update notice if available
+     */
+    public function show_update_notice() {
+        // Only show on our plugin's admin pages
+        $screen = get_current_screen();
+        if (!$screen || !in_array($screen->id, array('settings_page_azuracast-song-history', 'plugins'))) {
+            return;
+        }
+        
+        global $azuracast_updater;
+        
+        if (!$azuracast_updater) {
+            return;
+        }
+        
+        echo $azuracast_updater->get_update_notice();
     }
 }
