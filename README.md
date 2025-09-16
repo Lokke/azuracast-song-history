@@ -106,6 +106,22 @@ With custom layout:
 [azuracast_nowplaying layout="card" covers="true" title="Now On Air"]
 ```
 
+#### Live Moderator
+
+Display the name of the current live moderator (only when someone is broadcasting):
+
+```wordpress
+[azuracast_live_moderator]
+```
+
+With custom styling:
+
+```wordpress
+[azuracast_live_moderator class="my-moderator" style="color: red; font-weight: bold;"]
+```
+
+**Note:** This shortcode only displays when a moderator is live. When no one is broadcasting, nothing is shown.
+
 #### Audio Player
 
 Embed a streaming audio player:
@@ -122,6 +138,18 @@ With custom settings:
 
 ### Shortcode Parameters
 
+#### General Parameters (all shortcodes)
+
+| Parameter | Default | Options | Description |
+|-----------|---------|---------|-------------|
+| `title` | - | text | Custom title |
+| `class` | - | CSS class | Additional CSS class |
+| `style` | - | CSS | Inline CSS styles |
+| `refresh` | false | true, false | Enable auto-refresh |
+| `refresh_interval` | 30 | 10-300 | Refresh interval (seconds) |
+
+#### Song History Parameters
+
 | Parameter | Default | Options | Description |
 |-----------|---------|---------|-------------|
 | `count` | 10 | 1-50 | Number of songs to display |
@@ -130,11 +158,15 @@ With custom settings:
 | `time` | true | true, false | Show play timestamps |
 | `artist` | true | true, false | Show artist names |
 | `album` | true | true, false | Show album names |
-| `refresh` | false | true, false | Enable auto-refresh |
-| `refresh_interval` | 30 | 10-300 | Refresh interval (seconds) |
-| `title` | - | text | Custom title |
+
+#### Live Moderator Parameters
+
+| Parameter | Default | Options | Description |
+|-----------|---------|---------|-------------|
 | `class` | - | CSS class | Additional CSS class |
 | `style` | - | CSS | Inline CSS styles |
+
+**Note:** The live moderator shortcode automatically hides when no one is broadcasting.
 
 ## Styling
 

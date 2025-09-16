@@ -169,7 +169,11 @@ class AzuraCast_API {
         }
         
         return array(
-            'station' => $station_data['station'],
+            'station' => array(
+                'info' => $station_data['station'],
+                'live' => isset($station_data['live']) ? $station_data['live'] : null,
+                'listeners' => isset($station_data['listeners']) ? $station_data['listeners'] : null
+            ),
             'now_playing' => isset($station_data['now_playing']) ? $this->normalize_song_data($station_data['now_playing']) : null,
             'song_history' => $normalized_songs,
             'timestamp' => current_time('timestamp'),
@@ -293,25 +297,45 @@ class AzuraCast_API {
         
         // Try to get title/artist from individual fields first
         if (!empty($song_data['title'])) {
-            $title = $song_data['title'];
+            $title = trim($song_data['title']);
         }
         if (!empty($song_data['artist'])) {
-            $artist = $song_data['artist'];
+            $artist = trim($song_data['artist']);
         }
         
         // If title or artist is empty, try to parse from 'text' field
         if ((empty($title) || empty($artist)) && !empty($song_data['text'])) {
-            $text_parts = explode(' - ', $song_data['text'], 2);
-            if (count($text_parts) === 2) {
-                if (empty($artist)) {
-                    $artist = trim($text_parts[0]);
+            $text = trim($song_data['text']);
+            
+            // Handle various text formats:
+            // "Artist - Title"
+            // "Artist - Title, Additional Info"  
+            // "Artist - Title <Additional Info>"
+            
+            // Remove additional info in angle brackets first
+            $text = preg_replace('/\s*<[^>]*>\s*$/', '', $text);
+            
+            // Split by comma first to remove trailing info
+            $comma_parts = explode(',', $text, 2);
+            $main_text = trim($comma_parts[0]);
+            
+            // Now split by dash for artist - title
+            $dash_parts = explode(' - ', $main_text, 2);
+            
+            if (count($dash_parts) === 2) {
+                $parsed_artist = trim($dash_parts[0]);
+                $parsed_title = trim($dash_parts[1]);
+                
+                // Use parsed values if original fields are empty
+                if (empty($artist) && !empty($parsed_artist)) {
+                    $artist = $parsed_artist;
                 }
-                if (empty($title)) {
-                    $title = trim($text_parts[1]);
+                if (empty($title) && !empty($parsed_title)) {
+                    $title = $parsed_title;
                 }
             } elseif (empty($title)) {
-                // If no separator found, use entire text as title
-                $title = trim($song_data['text']);
+                // If no separator found and title is empty, use entire text as title
+                $title = $main_text;
             }
         }
         

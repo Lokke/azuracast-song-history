@@ -22,6 +22,7 @@ class AzuraCast_Shortcodes {
         add_shortcode('azuracast_history', array($this, 'song_history_shortcode'));
         add_shortcode('azuracast_nowplaying', array($this, 'now_playing_shortcode'));
         add_shortcode('azuracast_player', array($this, 'player_shortcode'));
+        add_shortcode('azuracast_live_moderator', array($this, 'live_moderator_shortcode'));
     }
     
     /**
@@ -78,11 +79,14 @@ class AzuraCast_Shortcodes {
             }
         }
         
-        if (empty($songs)) {
+        if (empty($songs) || empty($songs['song_history'])) {
             return '<div class="azuracast-no-songs">' . 
                    esc_html__('No songs available.', 'azuracast-song-history') . 
                    '</div>';
         }
+        
+        // Extract the actual song list
+        $song_list = $songs['song_history'];
         
         // Generate unique container ID for AJAX refresh
         $container_id = 'azuracast-shortcode-' . uniqid();
@@ -128,16 +132,16 @@ class AzuraCast_Shortcodes {
         
         switch ($layout) {
             case 'table':
-                $this->render_table_layout($songs, $show_covers, $show_time, $show_artist, $show_album);
+                $this->render_table_layout($song_list, $show_covers, $show_time, $show_artist, $show_album);
                 break;
             case 'grid':
-                $this->render_grid_layout($songs, $show_covers, $show_time, $show_artist, $show_album);
+                $this->render_grid_layout($song_list, $show_covers, $show_time, $show_artist, $show_album);
                 break;
             case 'compact':
-                $this->render_compact_layout($songs, $show_covers, $show_time, $show_artist, $show_album);
+                $this->render_compact_layout($song_list, $show_covers, $show_time, $show_artist, $show_album);
                 break;
             default: // list
-                $this->render_list_layout($songs, $show_covers, $show_time, $show_artist, $show_album);
+                $this->render_list_layout($song_list, $show_covers, $show_time, $show_artist, $show_album);
                 break;
         }
         
@@ -661,5 +665,70 @@ class AzuraCast_Shortcodes {
         } else {
             return date_i18n(get_option('time_format'), $timestamp);
         }
+    }
+    
+    /**
+     * Live moderator shortcode
+     * 
+     * Usage: [azuracast_live_moderator class="my-class" style="color: red;"]
+     * 
+     * @param array $atts Shortcode attributes
+     * @return string HTML output
+     */
+    public function live_moderator_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'class' => '',
+            'style' => ''
+        ), $atts, 'azuracast_live_moderator');
+        
+        // Sanitize attributes
+        $custom_class = sanitize_html_class($atts['class']);
+        $custom_style = sanitize_text_field($atts['style']);
+        
+        // Get live status
+        $api = new AzuraCast_API();
+        $response = $api->get_song_history(1); // We only need the live status
+        
+        if (is_wp_error($response) || empty($response)) {
+            // Try cached data as fallback
+            $response = $api->get_cached_history(1);
+            
+            if (empty($response)) {
+                return ''; // No data available
+            }
+        }
+        
+        // Extract live information
+        $live_info = isset($response['station']) && isset($response['station']['live']) ? 
+            $response['station']['live'] : null;
+        
+        // Check if live
+        $is_live = $live_info && isset($live_info['is_live']) && $live_info['is_live'];
+        
+        if (!$is_live) {
+            return ''; // Don't show anything when offline
+        }
+        
+        // Extract moderator info
+        $moderator_name = isset($live_info['streamer_name']) ? trim($live_info['streamer_name']) : '';
+        
+        // If no moderator name, don't show anything
+        if (empty($moderator_name)) {
+            return '';
+        }
+        
+        // Simple output - just the moderator name
+        $css_classes = array('azuracast-live-moderator-name');
+        if ($custom_class) {
+            $css_classes[] = $custom_class;
+        }
+        
+        $output = '<span class="' . esc_attr(implode(' ', $css_classes)) . '"';
+        if ($custom_style) {
+            $output .= ' style="' . esc_attr($custom_style) . '"';
+        }
+        $output .= '>' . esc_html($moderator_name) . '</span>';
+        
+        return $output;
     }
 }

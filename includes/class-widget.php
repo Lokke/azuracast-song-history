@@ -72,13 +72,16 @@ class AzuraCast_Widget extends WP_Widget {
             }
         }
         
-        if (empty($songs)) {
+        if (empty($songs) || empty($songs['song_history'])) {
             echo '<p class="azuracast-no-songs">' . 
                  esc_html__('No songs available.', 'azuracast-song-history') . 
                  '</p>';
             echo $args['after_widget'];
             return;
         }
+        
+        // Extract the actual song list
+        $song_list = $songs['song_history'];
         
         // Generate unique widget ID for AJAX refresh
         $widget_id = 'azuracast-widget-' . uniqid();
@@ -95,7 +98,7 @@ class AzuraCast_Widget extends WP_Widget {
         
         echo '<div class="azuracast-songs-container">';
         
-        foreach ($songs as $song) {
+        foreach ($song_list as $song) {
             $this->render_song_item($song, $show_covers, $show_time, $layout);
         }
         
