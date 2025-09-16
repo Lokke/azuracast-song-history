@@ -162,12 +162,18 @@ class AzuraCast_API {
         // Extract and format song history
         $song_history = array_slice($station_data['song_history'], 0, $count);
         
+        // Normalize song data format
+        $normalized_songs = array();
+        foreach ($song_history as $entry) {
+            $normalized_songs[] = $this->normalize_song_data($entry);
+        }
+        
         return array(
             'station' => $station_data['station'],
-            'now_playing' => isset($station_data['now_playing']) ? $station_data['now_playing'] : null,
-            'song_history' => $song_history,
+            'now_playing' => isset($station_data['now_playing']) ? $this->normalize_song_data($station_data['now_playing']) : null,
+            'song_history' => $normalized_songs,
             'timestamp' => current_time('timestamp'),
-            'count' => count($song_history)
+            'count' => count($normalized_songs)
         );
     }
     
@@ -238,15 +244,58 @@ class AzuraCast_API {
             return array();
         }
         
-        // Return requested number of songs
+        // Return requested number of songs - normalize cached data too
         $songs = array_slice($data['song_history'], 0, $count);
+        
+        // Normalize cached songs if they're not already normalized
+        $normalized_songs = array();
+        foreach ($songs as $song) {
+            // Check if song is already normalized (has title/artist at top level)
+            if (isset($song['title']) && isset($song['artist'])) {
+                $normalized_songs[] = $song;
+            } else {
+                $normalized_songs[] = $this->normalize_song_data($song);
+            }
+        }
         
         return array(
             'station' => isset($data['station']) ? $data['station'] : null,
             'now_playing' => isset($data['now_playing']) ? $data['now_playing'] : null,
-            'song_history' => $songs,
+            'song_history' => $normalized_songs,
             'timestamp' => isset($data['timestamp']) ? $data['timestamp'] : 0,
-            'count' => count($songs)
+            'count' => count($normalized_songs)
+        );
+    }
+    
+    /**
+     * Normalize song data format from API response
+     * 
+     * @param array $song_entry Raw song entry from API
+     * @return array Normalized song data
+     */
+    private function normalize_song_data($song_entry) {
+        if (!is_array($song_entry)) {
+            return array(
+                'title' => __('Unknown Title', 'azuracast-song-history'),
+                'artist' => __('Unknown Artist', 'azuracast-song-history'),
+                'album' => '',
+                'played_at' => '',
+                'art' => ''
+            );
+        }
+        
+        // Extract song data from nested structure
+        $song_data = isset($song_entry['song']) ? $song_entry['song'] : $song_entry;
+        
+        return array(
+            'title' => !empty($song_data['title']) ? $song_data['title'] : __('Unknown Title', 'azuracast-song-history'),
+            'artist' => !empty($song_data['artist']) ? $song_data['artist'] : __('Unknown Artist', 'azuracast-song-history'),
+            'album' => !empty($song_data['album']) ? $song_data['album'] : '',
+            'played_at' => isset($song_entry['played_at']) ? $song_entry['played_at'] : '',
+            'art' => !empty($song_data['art']) ? $song_data['art'] : '',
+            'genre' => !empty($song_data['genre']) ? $song_data['genre'] : '',
+            'duration' => isset($song_entry['duration']) ? $song_entry['duration'] : 0,
+            'playlist' => isset($song_entry['playlist']) ? $song_entry['playlist'] : ''
         );
     }
     
