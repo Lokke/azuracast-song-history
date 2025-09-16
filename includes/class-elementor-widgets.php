@@ -13,6 +13,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use Elementor\Plugin;
+use Elementor\Widgets_Manager;
+
 /**
  * Check if Elementor is active
  */
@@ -49,14 +52,14 @@ class AzuraCast_Elementor_Widgets {
     /**
      * Register widgets
      */
-    public function register_widgets() {
+    public function register_widgets($widgets_manager) {
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/live-moderator.php';
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/current-song.php';
         require_once plugin_dir_path(__FILE__) . 'elementor-widgets/song-history.php';
         
-        Plugin::instance()->widgets_manager->register(new AzuraCast_Live_Moderator_Widget());
-        Plugin::instance()->widgets_manager->register(new AzuraCast_Current_Song_Widget());
-        Plugin::instance()->widgets_manager->register(new AzuraCast_Song_History_Widget());
+        $widgets_manager->register(new AzuraCast_Live_Moderator_Widget());
+        $widgets_manager->register(new AzuraCast_Current_Song_Widget());
+        $widgets_manager->register(new AzuraCast_Song_History_Widget());
     }
 }
 
