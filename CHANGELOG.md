@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2025-09-16
+
+### Improved
+
+- **Simplified Configuration**: Enter only server URL (e.g., `funkturm.radio-endstation.de`)
+- **Automatic API Detection**: Plugin builds `/api/nowplaying` path automatically
+- **Station Selection**: Admin interface now shows available radio stations for selection
+- **Better AzuraCast Integration**: Uses full nowplaying API response structure
+- **Enhanced Error Handling**: Better feedback when stations cannot be loaded
+
+### Technical Changes
+
+- Updated admin interface with station dropdown
+- Improved API class to handle AzuraCast response format
+- Added automatic station discovery from nowplaying endpoint
+- Simplified URL configuration (no more full API paths needed)
+
 ## [0.0.4] - 2025-09-16
 
 ### Fixed
@@ -55,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Responsive CSS styling
 - Dark mode support
 
+[0.0.5]: https://github.com/Lokke/azuracast-song-history/releases/tag/v0.0.5
 [0.0.4]: https://github.com/Lokke/azuracast-song-history/releases/tag/v0.0.4
 [0.0.3]: https://github.com/Lokke/azuracast-song-history/releases/tag/v0.0.3
 [0.0.2]: https://github.com/Lokke/azuracast-song-history/releases/tag/v0.0.2

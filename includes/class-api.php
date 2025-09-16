@@ -88,16 +88,85 @@ class AzuraCast_API {
         $api_url = $this->get_api_url();
         
         if (empty($api_url)) {
-            return new WP_Error('missing_config', __('AzuraCast API URL not configured', 'azuracast-song-history'));
+            return new WP_Error('missing_config', __('AzuraCast server URL not configured', 'azuracast-song-history'));
         }
         
-        // Build API endpoint
-        $endpoint = rtrim($api_url, '/') . '/api/nowplaying';
+        // Build API endpoint from server URL
+        $server_url = trim($api_url);
+        $server_url = preg_replace('#^https?://#', '', $server_url);
+        $endpoint = 'https://' . $server_url . '/api/nowplaying';
         
-        // Add station ID if configured
-        $station_id = isset($this->options['station_id']) ? $this->options['station_id'] : '';
-        if (!empty($station_id)) {
-            $endpoint .= '/' . intval($station_id);
+        // Get station shortcode from settings
+        $station_shortcode = isset($this->options['station_shortcode']) ? $this->options['station_shortcode'] : '';
+        
+        // Make API request
+        $response = wp_remote_get($endpoint, array(
+            'timeout' => self::TIMEOUT,
+            'user-agent' => 'AzuraCast Song History Plugin'
+        ));
+        
+        if (is_wp_error($response)) {
+            // Try HTTP if HTTPS fails
+            $endpoint = 'http://' . $server_url . '/api/nowplaying';
+            $response = wp_remote_get($endpoint, array(
+                'timeout' => self::TIMEOUT,
+                'user-agent' => 'AzuraCast Song History Plugin'
+            ));
+        }
+        
+        if (is_wp_error($response)) {
+            return $response;
+        }
+        
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            return new WP_Error('api_error', sprintf(__('API request failed with status %d', 'azuracast-song-history'), $response_code));
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new WP_Error('json_error', __('Invalid JSON response from API', 'azuracast-song-history'));
+        }
+        
+        if (!is_array($data)) {
+            return new WP_Error('invalid_response', __('Invalid response format from API', 'azuracast-song-history'));
+        }
+        
+        // Find the correct station data
+        $station_data = null;
+        
+        if (!empty($station_shortcode)) {
+            // Look for specific station by shortcode
+            foreach ($data as $item) {
+                if (isset($item['station']['shortcode']) && $item['station']['shortcode'] === $station_shortcode) {
+                    $station_data = $item;
+                    break;
+                }
+            }
+        }
+        
+        // If no specific station found or no shortcode set, use first station
+        if (!$station_data && !empty($data)) {
+            $station_data = $data[0];
+        }
+        
+        if (!$station_data || !isset($station_data['song_history'])) {
+            return new WP_Error('no_data', __('No song history data found', 'azuracast-song-history'));
+        }
+        
+        // Extract and format song history
+        $song_history = array_slice($station_data['song_history'], 0, $count);
+        
+        return array(
+            'station' => $station_data['station'],
+            'now_playing' => isset($station_data['now_playing']) ? $station_data['now_playing'] : null,
+            'song_history' => $song_history,
+            'timestamp' => current_time('timestamp'),
+            'count' => count($song_history)
+        );
+    }
         }
         
         // Make API request
@@ -125,47 +194,52 @@ class AzuraCast_API {
         $data = json_decode($body, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new WP_Error('invalid_json', __('Invalid JSON response from AzuraCast API', 'azuracast-song-history'));
+            return new WP_Error('json_error', __('Invalid JSON response from API', 'azuracast-song-history'));
         }
         
-        return $this->process_api_response($data, $count);
+        if (!is_array($data)) {
+            return new WP_Error('invalid_response', __('Invalid response format from API', 'azuracast-song-history'));
+        }
+        
+        // Find the correct station data
+        $station_data = null;
+        
+        if (!empty($station_shortcode)) {
+            // Look for specific station by shortcode
+            foreach ($data as $item) {
+                if (isset($item['station']['shortcode']) && $item['station']['shortcode'] === $station_shortcode) {
+                    $station_data = $item;
+                    break;
+                }
+            }
+        }
+        
+        // If no specific station found or no shortcode set, use first station
+        if (!$station_data && !empty($data)) {
+            $station_data = $data[0];
+        }
+        
+        if (!$station_data || !isset($station_data['song_history'])) {
+            return new WP_Error('no_data', __('No song history data found', 'azuracast-song-history'));
+        }
+        
+        // Extract and format song history
+        $song_history = array_slice($station_data['song_history'], 0, $count);
+        
+        return array(
+            'station' => $station_data['station'],
+            'now_playing' => isset($station_data['now_playing']) ? $station_data['now_playing'] : null,
+            'song_history' => $song_history,
+            'timestamp' => current_time('timestamp'),
+            'count' => count($song_history)
+        );
     }
     
     /**
-     * Process and format API response
+     * Store song data in database for persistence
      * 
-     * @param array $data Raw API data
-     * @param int $count Number of songs to return
-     * @return array Formatted song history
+     * @param array $songs Song data to store
      */
-    private function process_api_response($data, $count) {
-        $songs = array();
-        
-        // Handle different API response formats
-        if (isset($data['song_history']) && is_array($data['song_history'])) {
-            $song_history = $data['song_history'];
-        } elseif (isset($data['history']) && is_array($data['history'])) {
-            $song_history = $data['history'];
-        } elseif (is_array($data)) {
-            $song_history = $data;
-        } else {
-            return array();
-        }
-        
-        // Process each song
-        foreach ($song_history as $item) {
-            if (count($songs) >= $count) {
-                break;
-            }
-            
-            $song = $this->format_song_data($item);
-            if ($song) {
-                $songs[] = $song;
-            }
-        }
-        
-        return $songs;
-    }
     
     /**
      * Format individual song data

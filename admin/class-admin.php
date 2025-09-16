@@ -64,24 +64,16 @@ class AzuraCast_Admin {
         
         add_settings_field(
             'api_url',
-            __('AzuraCast URL', 'azuracast-song-history'),
+            __('AzuraCast Server URL', 'azuracast-song-history'),
             array($this, 'api_url_callback'),
             'azuracast-song-history',
             'azuracast_connection_section'
         );
         
         add_settings_field(
-            'station_id',
-            __('Station ID', 'azuracast-song-history'),
-            array($this, 'station_id_callback'),
-            'azuracast-song-history',
-            'azuracast_connection_section'
-        );
-        
-        add_settings_field(
-            'stream_url',
-            __('Stream URL (Optional)', 'azuracast-song-history'),
-            array($this, 'stream_url_callback'),
+            'station_selection',
+            __('Radio Station', 'azuracast-song-history'),
+            array($this, 'station_selection_callback'),
             'azuracast-song-history',
             'azuracast_connection_section'
         );
@@ -334,25 +326,112 @@ class AzuraCast_Admin {
      */
     public function api_url_callback() {
         $value = isset($this->options['api_url']) ? $this->options['api_url'] : '';
-        echo '<input type="url" id="api_url" name="azuracast_song_history_options[api_url]" 
+        echo '<input type="text" id="api_url" name="azuracast_song_history_options[api_url]" 
                      value="' . esc_attr($value) . '" class="regular-text" 
-                     placeholder="https://your-azuracast-server.com" required>';
+                     placeholder="funkturm.radio-endstation.de">';
         echo '<p class="description">' . 
-             esc_html__('The URL of your AzuraCast installation (without trailing slash).', 'azuracast-song-history') . 
+             esc_html__('Enter your AzuraCast server URL (without http:// or https://). Example: funkturm.radio-endstation.de', 'azuracast-song-history') . 
              '</p>';
     }
     
     /**
-     * Station ID field callback
+     * Station selection field callback
      */
-    public function station_id_callback() {
-        $value = isset($this->options['station_id']) ? $this->options['station_id'] : '';
-        echo '<input type="text" id="station_id" name="azuracast_song_history_options[station_id]" 
-                     value="' . esc_attr($value) . '" class="small-text" 
-                     placeholder="1">';
-        echo '<p class="description">' . 
-             esc_html__('Station ID or shortcode. Leave empty to use the first available station.', 'azuracast-song-history') . 
-             '</p>';
+    public function station_selection_callback() {
+        $api_url = isset($this->options['api_url']) ? $this->options['api_url'] : '';
+        $selected_station = isset($this->options['station_shortcode']) ? $this->options['station_shortcode'] : '';
+        
+        echo '<div id="station-selection-container">';
+        
+        if (empty($api_url)) {
+            echo '<p class="description" style="color: #d63638;">' . 
+                 esc_html__('Please enter your AzuraCast server URL first, then save settings to load available stations.', 'azuracast-song-history') . 
+                 '</p>';
+        } else {
+            // Try to fetch stations
+            $stations = $this->fetch_available_stations($api_url);
+            
+            if (is_array($stations) && !empty($stations)) {
+                echo '<select id="station_shortcode" name="azuracast_song_history_options[station_shortcode]">';
+                echo '<option value="">' . esc_html__('Select a station...', 'azuracast-song-history') . '</option>';
+                
+                foreach ($stations as $station) {
+                    $shortcode = isset($station['shortcode']) ? $station['shortcode'] : '';
+                    $name = isset($station['name']) ? $station['name'] : '';
+                    $description = isset($station['description']) ? $station['description'] : '';
+                    
+                    if (!empty($shortcode)) {
+                        echo '<option value="' . esc_attr($shortcode) . '" ' . selected($selected_station, $shortcode, false) . '>';
+                        echo esc_html($name);
+                        if (!empty($description)) {
+                            echo ' - ' . esc_html($description);
+                        }
+                        echo '</option>';
+                    }
+                }
+                echo '</select>';
+                echo '<p class="description">' . 
+                     esc_html__('Select which radio station to display song history from.', 'azuracast-song-history') . 
+                     '</p>';
+            } else {
+                echo '<p class="description" style="color: #d63638;">' . 
+                     esc_html__('Could not load stations. Please check your server URL and make sure it is reachable.', 'azuracast-song-history') . 
+                     '</p>';
+                echo '<input type="text" id="station_shortcode" name="azuracast_song_history_options[station_shortcode]" 
+                             value="' . esc_attr($selected_station) . '" class="regular-text" 
+                             placeholder="radio-endstation">';
+                echo '<p class="description">' . 
+                     esc_html__('Enter the station shortcode manually if automatic detection failed.', 'azuracast-song-history') . 
+                     '</p>';
+            }
+        }
+        
+        echo '</div>';
+    }
+    
+    /**
+     * Fetch available stations from AzuraCast API
+     */
+    private function fetch_available_stations($server_url) {
+        // Clean and prepare URL
+        $server_url = trim($server_url);
+        $server_url = preg_replace('#^https?://#', '', $server_url);
+        $api_url = 'https://' . $server_url . '/api/nowplaying';
+        
+        // Use WordPress HTTP API
+        $response = wp_remote_get($api_url, array(
+            'timeout' => 10,
+            'user-agent' => 'AzuraCast Song History Plugin'
+        ));
+        
+        if (is_wp_error($response)) {
+            // Try HTTP if HTTPS fails
+            $api_url = 'http://' . $server_url . '/api/nowplaying';
+            $response = wp_remote_get($api_url, array(
+                'timeout' => 10,
+                'user-agent' => 'AzuraCast Song History Plugin'
+            ));
+        }
+        
+        if (is_wp_error($response)) {
+            return false;
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+        
+        if (!is_array($data)) {
+            return false;
+        }
+        
+        $stations = array();
+        foreach ($data as $station_data) {
+            if (isset($station_data['station'])) {
+                $stations[] = $station_data['station'];
+            }
+        }
+        
+        return $stations;
     }
     
     /**
